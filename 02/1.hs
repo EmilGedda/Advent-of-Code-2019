@@ -1,5 +1,4 @@
 #!/usr/bin/env runhaskell
-
 import Prelude hiding (head, map)
 import Data.List.Split
 import Data.Vector

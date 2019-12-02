@@ -1,18 +1,14 @@
 #!/usr/bin/env runhaskell
-
 import Prelude hiding (head, map, dropWhile)
-import Control.Arrow
 import Data.List.Split
 import Data.Vector
 
-main = print . solve . map read . fromList . splitOn "," =<< getContents
+main = print . solve 0 0 . map read . fromList . splitOn "," =<< getContents
 
-solve v = uncurry (+) . first (* 100) . fst
-          . head . dropWhile ((/=19690720) . snd)
-          . map (id &&& (run 0 . program v))
-          $ fromList [(x,y) | x <- [1..99], y <- [1..99]]
-
-program v (a, b) = v // [(1, a), (2, b)]
+solve 100 j v = solve 0 (j + 1) v
+solve i j v
+    | 19690720 == run 0 (v // [(1, i), (2, j)]) = 100 * i + j
+    | otherwise = solve (i + 1) j v
 
 run i v
     | v ! i == 99 = head v
