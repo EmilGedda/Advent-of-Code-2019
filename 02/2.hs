@@ -9,9 +9,8 @@ main = print . solve . map read . fromList . splitOn "," =<< getContents
 
 solve v = uncurry (+) . first (* 100) . fst
           . head . dropWhile ((/=19690720) . snd)
-          $ map (id &&& (run 0 . program v)) combinations
-
-combinations = fromList [(x,y) | x <- [1..99], y <- [1..99]]
+          . map (id &&& (run 0 . program v))
+          $ fromList [(x,y) | x <- [1..99], y <- [1..99]]
 
 program v (a, b) = v // [(1, a), (2, b)]
 
