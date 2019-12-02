@@ -25,9 +25,8 @@ int run(std::vector<int> program, int noun, int verb) {
 
 int main() {
   std::vector<int> program;
-  for(int x; std::cin >> x; std::cin.get()) {
+  for(int x; std::cin >> x; std::cin.get())
     program.push_back(x);
-  }
 
   for(int i = 0; i < 99; i++)
     for(int j = 0; j < 99; j++)
