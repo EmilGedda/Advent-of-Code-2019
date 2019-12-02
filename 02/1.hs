@@ -11,8 +11,8 @@ program = (// [(1, 12), (2, 2)])
 run i v
     | v ! i == 99 = head v
     | otherwise = let instruction = toList $ slice i 4 v
-                  in run (i + 4) $ v // (execute v instruction)
-    where execute v (opcode:a:b:dest:[]) = [(dest, op opcode (v ! a) (v ! b))]
+                  in run (i + 4) $ (//) <*> (execute instruction) $ v
+    where execute (opcode:a:b:dest:[]) v = [(dest, op opcode (v ! a) (v ! b))]
 
 op n x y
     | n == 1 = x + y
