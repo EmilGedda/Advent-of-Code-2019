@@ -21,6 +21,4 @@ run i v
                   in run (i + 4) $ (//) <*> (execute instruction) $ v
     where execute (opcode:a:b:dest:[]) v = [(dest, op opcode (v ! a) (v ! b))]
 
-op n x y
-    | n == 1 = x + y
-    | n == 2 = x * y
+op = (!) $ fromList [undefined, (+), (*)]
