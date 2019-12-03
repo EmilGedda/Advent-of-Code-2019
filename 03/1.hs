@@ -1,5 +1,5 @@
 #!/usr/bin/env runhaskell
-import Data.HashSet hiding (map)
+import Data.Set hiding (map)
 import Data.List hiding (union)
 import Data.List.Split
 
@@ -8,7 +8,7 @@ main = print . solve . map grid . init . map (splitOn ",") . splitOn "\n" =<< ge
 solve [a,b] = head . sort . map manhattan . toList $ intersection a b
     where manhattan (x,y) = (abs x) + (abs y)
 
-grid :: [String] -> HashSet (Int, Int)
+grid :: [String] -> Set (Int, Int)
 grid d = grid' d (0,0) empty
 
 grid' [] _ set = set
