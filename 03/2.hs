@@ -1,12 +1,13 @@
 #!/usr/bin/env runhaskell
-import Data.HashMap.Strict hiding (map)
+import Data.Map hiding (map)
 import Data.List
 import Data.List.Split
 
 main = print . solve . map grid . init . map (splitOn ",") . splitOn "\n" =<< getContents
 
-solve [a,b] = head . sort . map snd . toList $ intersectionWith (+) a b
+solve [a,b] = minimum . elems $ intersectionWith (+) a b
 
+grid :: [String] -> Map (Int, Int) Int
 grid d = grid' d 1 (0,0) empty
 
 grid' [] _ _ set = set

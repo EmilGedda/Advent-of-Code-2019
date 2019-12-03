@@ -5,7 +5,7 @@ import Data.List.Split
 
 main = print . solve . map grid . init . map (splitOn ",") . splitOn "\n" =<< getContents
 
-solve [a,b] = head . sort . map manhattan . toList $ intersection a b
+solve [a,b] = minimum . map manhattan . toList $ intersection a b
     where manhattan (x,y) = (abs x) + (abs y)
 
 grid :: [String] -> Set (Int, Int)
