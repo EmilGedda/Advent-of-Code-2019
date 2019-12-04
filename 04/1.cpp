@@ -10,7 +10,6 @@ bool adjacency(const std::array<int, 6>& num) {
 }
 
 int main() {
-  // 236491-713787
   const int start = 236666;
   const int stop =  700000;
   int count = 0;
