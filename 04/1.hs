@@ -1,10 +1,11 @@
 #!/usr/bin/env runhaskell
 import Control.Monad
 import Data.List
-main = print . length $ filter validPassword [236666..699999]
 
-validPassword = liftM2 (&&) sortedDescending adjacent . digits
-    where sortedDescending xs = and $ zipWith (>=) xs (tail xs)
+main = print . length $ filter valid [236666..699999]
+
+valid = liftM2 (&&) sorted adjacent . digits
+    where sorted xs = and $ zipWith (>=) xs (tail xs)
           adjacent = or . map ((>=2) . length) . group
 
 digits 0 = []
