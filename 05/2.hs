@@ -2,7 +2,7 @@
 import Control.Arrow
 import Data.Bool
 import Data.List.Split hiding (split)
-import Data.Vector hiding (drop, head, map, reverse, zip, replicate, (++), length, last)
+import Data.Vector hiding (drop, head, map, reverse, zip, replicate, (++), length, last, zipWith)
 import Data.Tuple
 import System.Environment
 
@@ -10,8 +10,8 @@ main :: IO ()
 main = run . parseProgram =<< readFile . head  =<< getArgs
 
 data Mode = Position | Immediate                                deriving (Show)
-data Operation = Apply  (Int -> Int -> Int) | In | Out | Halt | Jump Bool
-              | Compare (Int -> Int -> Bool) | Equals
+data Operation = Apply  (Int -> Int -> Int) | In | Out | Halt
+               | Jump Bool | Compare (Int -> Int -> Bool) | Equals
 data Instruction = Instruction Operation Parameters
 data Parameter = Parameter { mode :: Mode, value :: Int }       deriving (Show)
 data Program = Program { code :: Vector Int, index :: Int }     deriving (Show)
@@ -41,7 +41,7 @@ parseParameter m p = Parameter m (current p)
 parseInstruction :: Program -> Instruction
 parseInstruction p = uncurry Instruction . second params . split $ current p
     where params :: [Mode] -> Parameters
-          params modes = map (uncurry parseParameter) . zip modes . drop 1 $ iterate (step 1) p
+          params modes = zipWith parseParameter modes . drop 1 $ iterate (step 1) p
 
 split :: Int -> (Operation, [Mode])
 split x = let (modes, op) = second opcode $ x `divMod` 100
@@ -60,13 +60,13 @@ step n (Program code index) = Program code (index + n)
 next :: Instruction -> Program -> Program
 next (Instruction op _) p = flip step p . (+1) $ opLength op
 
-cont = return . Right -- continue execution
+cont = return . Just -- continue execution
 
-execute :: Program -> Instruction -> IO (Either Program Program)
+execute :: Program -> Instruction -> IO (Maybe Program)
 execute p (Instruction (Apply f) params)   = cont $ apply f p params
-execute p (Instruction In [dest])          = Right . set p (value dest) <$> input
-execute p (Instruction Out [dest])         = print (load p dest) >> (return $ Right p)
-execute p (Instruction Halt [])            = return $ Left p
+execute p (Instruction In [dest])          = Just . set p (value dest) <$> input
+execute p (Instruction Out [dest])         = print (load p dest) >> return ( Just p)
+execute p (Instruction Halt [])            = return Nothing
 execute p (Instruction (Jump cond) params) = cont $ jmp cond p params
 execute p (Instruction (Compare c) params) = cont $ cmp c p params
 
@@ -78,9 +78,9 @@ jmp cond p params = bool p (jump p dest) . (cond==) $ boolean x
           boolean _ = True
 
 cmp :: (Int -> Int -> Bool) -> Program -> Parameters -> Program
-cmp comparison p params@[_,_,dest] = bool (store 0) (store 1) $ comparison a b
+cmp comparison p params = store . bool 0 1 $ comparison a b
     where [a,b,_] = map (load p) params
-          store = set p (value dest)
+          store = set p (value $ last params)
 
 apply :: (Int -> Int -> Int) -> Program -> Parameters -> Program
 apply f prog@(Program code _) [a,b,dest] = set prog address result
@@ -91,12 +91,8 @@ input :: IO Int
 input = putStr "Enter input: " >> read <$> getLine
 
 run :: Program -> IO ()
-run prog = do
-        result <- run' prog
-        case result of
-            Right p -> run p
-            Left p -> return ()
-   where run' p' = let i = parseInstruction p' in (fmap.fmap) (jump i p') $ execute p' i
+run prog = maybe (return ()) run =<< run' prog
+   where run' p' = let i = parseInstruction p' in fmap (jump i p') <$> execute p' i
          jump i before@(Program _ i1) after@(Program _ i2) = bool after (next i after) (i1 == i2)
 
 parseProgram :: String -> Program
