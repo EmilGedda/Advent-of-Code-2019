@@ -9,12 +9,12 @@ import System.Environment
 main :: IO ()
 main = run . parseProgram =<< readFile . head  =<< getArgs
 
-data Mode = Position | Immediate                                deriving (Show)
+data Mode = Position | Immediate
 data Operation = Apply  (Int -> Int -> Int) | In | Out | Halt
                | Jump Bool | Compare (Int -> Int -> Bool) | Equals
 data Instruction = Instruction Operation Parameters
-data Parameter = Parameter { mode :: Mode, value :: Int }       deriving (Show)
-data Program = Program { code :: Vector Int, index :: Int }     deriving (Show)
+data Parameter = Parameter { mode :: Mode, value :: Int }
+data Program = Program { code :: Vector Int, index :: Int }
 
 type Parameters = [Parameter]
 
@@ -55,7 +55,7 @@ load _ (Parameter Immediate value) = value
 load (Program code _) (Parameter Position value) = code ! value
 
 step :: Int -> Program -> Program
-step n (Program code index) = Program code (index + n)
+step n p@(Program _ i) = p { index = i + n }
 
 next :: Instruction -> Program -> Program
 next (Instruction op _) p = flip step p . (+1) $ opLength op
@@ -93,7 +93,7 @@ input = putStr "Enter input: " >> read <$> getLine
 run :: Program -> IO ()
 run prog = maybe (return ()) run =<< run' prog
    where run' p' = let i = parseInstruction p' in fmap (jump i p') <$> execute p' i
-         jump i before@(Program _ i1) after@(Program _ i2) = bool after (next i after) (i1 == i2)
+         jump i (Program _ i1) after@(Program _ i2) = bool after (next i after) (i1 == i2)
 
 parseProgram :: String -> Program
 parseProgram = flip Program 0 . fromList . map read . splitOn ","
