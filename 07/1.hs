@@ -10,7 +10,7 @@ main = print =<< bruteforce  =<< getArgs
 bruteforce [computer, code] = maximum <$> mapM (thrust computer code) (permutations [0..4])
 
 thrust :: String -> String -> [Int] -> IO Int
-thrust computer code order = foldr (=<<) (return 0) $ map (run computer code) order
+thrust computer code = foldr ((=<<) . run computer code) (return 0)
 
 run :: String -> String -> Int -> Int -> IO Int
 run computer code amplifier input =
@@ -22,8 +22,8 @@ run computer code amplifier input =
 
         hSetBuffering stdin'  NoBuffering
 
-        hPutStrLn stdin' $ show amplifier
-        hPutStrLn stdin' $ show input
+        hPrint stdin' amplifier
+        hPrint stdin' input
 
         s <- hGetContents stdout'
         return . read . last $!! words s
