@@ -1,5 +1,6 @@
 #!/usr/bin/env runhaskell
 import Control.Monad
+import Control.Monad.Loops
 import Control.Exception
 import Data.IORef
 import Data.List
@@ -24,7 +25,7 @@ run computer code order =
           handler :: IOException -> IO Int
           handler _ = readIORef ref
 
-      res <- foldlM (const . cycle) 0 [1..] `catch` handler
+      res <- iterateM_ cycle 0 `catch` handler
       mapM_ cleanupProcess procs
       return res
 
