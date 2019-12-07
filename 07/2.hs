@@ -1,7 +1,6 @@
 #!/usr/bin/env runhaskell
 import Control.Monad
 import Control.Exception
-import Control.DeepSeq
 import Data.IORef
 import Data.List
 import Data.Foldable
@@ -27,7 +26,7 @@ run computer code order =
 
       res <- foldlM (const . cycle) 0 [1..] `catch` handler
       mapM_ cleanupProcess procs
-      return $!! res
+      return res
 
 phase setting (Just stdin', _, _, _) = hPrint stdin' setting >> hFlush stdin'
 
