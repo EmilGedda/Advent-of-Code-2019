@@ -13,12 +13,10 @@ main = print =<< bruteforce  =<< getArgs
 
 bruteforce [computer, code] = maximum <$> mapM (run computer code) (permutations [5..9])
 
-run :: String -> String -> [Int] -> IO Int
 run computer code order =
     let p = (proc computer [code]) { std_in = CreatePipe, std_out = CreatePipe }
     in do
-      procs <- mapM createProcess $ replicate (length order) p
-      mapM_ nobuffer procs
+      procs <- replicateM (length order) (createProcess p)
       zipWithM_ phase order procs
 
       ref <- newIORef 0
@@ -30,9 +28,6 @@ run computer code order =
       res <- foldlM (const . cycle) 0 [1..] `catch` handler
       mapM_ cleanupProcess procs
       return $!! res
-
-nobuffer (Just stdin', Just stdout', _, _) = hSetBuffering stdin' NoBuffering
-                                             >> hSetBuffering stdout' NoBuffering
 
 phase setting (Just stdin', _, _, _) = hPrint stdin' setting >> hFlush stdin'
 
