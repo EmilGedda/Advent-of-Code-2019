@@ -48,24 +48,21 @@ paintHull rob effect =
 
 
 printHull :: M.Map Position Int64 -> IO  ()
-printHull hull = 
-    let 
+printHull hull =
+    let
         panels = map fst . filter ((==1) . snd) $ M.toList hull
 
-        coord c f = c $ map f panels
-        minx = coord minimum fst
-        miny = coord minimum snd
-        lenx = coord maximum fst
-        leny = coord maximum snd
+        coord f = (,) <$> minimum <*> maximum $ map f panels
+        (minx, lenx) = coord fst
+        (miny, leny) = coord snd
 
         pixels = [(x,y) | x <- [minx..lenx], y <- [miny..leny]]
 
-        draw paint pixel = char . fromMaybe 0 $ M.lookup paint pixel
+        draw pixel = char . fromMaybe 0 $ M.lookup pixel hull
         char 1 = '#'
         char 0 = ' '
 
-    in mapM_ (putStrLn . reverse  . map (flip draw hull)) 
-       . transpose $ groupBy ((==) `on` fst) pixels
+    in mapM_ (putStrLn . reverse  . map draw) . transpose $ groupBy ((==) `on` fst) pixels
 
 -- COMPUTER BELOW ---
 data Program = Program { pos :: Int64, base :: Int64,  memory :: Seq Int64 } deriving Show
