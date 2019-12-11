@@ -14,7 +14,7 @@ type Position = (Int, Int)
 
 
 main = printHull . paintHull robot . execute . parse 10000 =<< getContents
-    where robot = Robot (0,0) 0 M.empty
+    where robot = Robot (0,0) 0 $ M.insert (0,0) 1 M.empty
 
 data Robot = Robot { position :: Position, direction :: Int, panels :: M.Map Position Int64 }
 
@@ -38,13 +38,10 @@ paintHull rob effect =
         move dir robot = rot { position = sum' (stepSize (direction rot)) (position rot) }
             where rot = diff dir robot
 
-        white :: Robot -> Robot
-        white robot@Robot{panels=hull} = robot { panels = M.insert (0,0) 1 hull }
-
     in case effect of
-         Input whatColor             -> paintHull (white rob) $ whatColor (currentColor $ white rob)
-         Output color (Output dir p) -> flip paintHull p . move dir $ paint color (white rob)
-         End                         -> panels (white rob)
+         Input whatColor             -> paintHull rob $ whatColor (currentColor rob)
+         Output color (Output dir p) -> flip paintHull p . move dir $ paint color rob
+         End                         -> panels rob
 
 
 printHull :: M.Map Position Int64 -> IO  ()
