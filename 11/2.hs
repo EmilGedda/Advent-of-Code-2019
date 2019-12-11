@@ -1,12 +1,11 @@
 #!/usr/bin/env runhaskell
 import Control.Arrow
 import Data.Bool
-import Data.Function
 import Data.Int
 import Data.List
 import Data.List.Split
 import Data.Maybe
-import Data.Sequence hiding (filter, reverse)
+import Data.Sequence hiding (filter, reverse, chunksOf)
 import Prelude hiding (replicate)
 import qualified Data.Map as M
 
@@ -59,7 +58,7 @@ printHull hull =
         char 1 = '#'
         char 0 = ' '
 
-    in mapM_ (putStrLn . reverse  . map draw) . transpose $ groupBy ((==) `on` fst) pixels
+    in mapM_ (putStrLn . reverse . map draw) . transpose $ chunksOf (leny - miny + 1)  pixels
 
 -- COMPUTER BELOW ---
 data Program = Program { pos :: Int64, base :: Int64,  memory :: Seq Int64 } deriving Show
