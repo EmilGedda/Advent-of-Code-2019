@@ -7,11 +7,10 @@ import Control.Monad
 data Vec3 a = Vec3 { _x :: a, _y :: a, _z :: a } deriving Show
 data Planet = Planet { _pos :: Vec3 Int, _vel :: Vec3 Int } deriving Show
 
-combineVec f (Vec3 a b c) (Vec3 x y z) = Vec3 (f a x) (f b y) (f c z)
-mapVec f (Vec3 a b c) = Vec3 (f a) (f b) (f c)
-(<+>) = combineVec (+)
-foldVec f (Vec3 a b c) = a `f` b `f` c
-sum' = foldVec (+)
+combine f (Vec3 a b c) (Vec3 x y z) = Vec3 (f a x) (f b y) (f c z)
+apply f (Vec3 a b c) = Vec3 (f a) (f b) (f c)
+(<+>) = combine (+)
+sum' (Vec3 a b c) = a + b + c
 
 $(makeLenses ''Vec3)
 $(makeLenses ''Planet)
@@ -25,18 +24,17 @@ input = [ mkPlanet (-15)     1    4
 main = print . sum . map energy . (!! 1000) $ iterate simulate input
 
 energy = liftM2 (*) (kinetic . _pos) (kinetic . _vel)
-    where kinetic p = sum' (mapVec abs p)
+    where kinetic = sum' . apply abs
 
 simulate planets =
-   let
-        move planet = over pos (<+> _vel planet) planet
-        speed planet v = over vel (<+> v) planet
-        pairs = map (foldl1 (<+>)) . chunksOf 4
-              $ [ gravity a b | a <- planets, b <- planets]
+   let move planet = over pos (<+> _vel planet) planet
+       speed v = over vel (<+> v)
+       pairs = map (foldl1 (<+>)) . chunksOf 4
+             $ [ gravity a b | a <- planets, b <- planets]
 
-   in map move $ zipWith speed planets pairs
+   in zipWith ((move .) . speed) pairs planets
 
-gravity a b = combineVec ((toInt .) . compare) (_pos b) (_pos a)
+gravity a b = combine ((toInt .) . compare) (_pos b) (_pos a)
     where toInt GT = 1
           toInt EQ = 0
           toInt LT = -1
