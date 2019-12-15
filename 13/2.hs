@@ -15,19 +15,15 @@ data Tile = Empty | Wall | Block | Paddle | Ball | Score Int64 deriving (Show, E
 main = print . run M.empty . execute . save 0 2 . parse 5000 =<< getContents
 
 run grid effect =
-    let toTile x y | x == -1 && y == 0 = Score
-                   | otherwise = (!!) [Empty,Wall,Block,Paddle,Ball] . narrow
+    let toTile (-1) 0 = Score
+        toTile    _ _ = (!!) [Empty,Wall,Block,Paddle,Ball] . narrow
 
+        find t = fst . fst .  head . filter ((==) t . snd) $ M.toList grid
         output x y tile = M.insert (x,y) (toTile x y tile) grid
-        find f = fst . fst .  head . filter (f . snd) $ M.toList grid
-
-        paddle = find (==Paddle)
-        ball = find (==Ball)
-        score (Score x) = x
     in 
     case effect of
-         Input joystick -> run grid . joystick . signum $ ball - paddle
-         End            -> score . fromMaybe (Score 0) $ M.lookup (-1,0) grid 
+         Input joystick -> run grid . joystick . signum $ find Ball - find Paddle
+         End            -> fromMaybe (Score 0) $ M.lookup (-1,0) grid 
          Output x (Output y (Output tile fx)) -> run (output x y tile) fx
 
 -- COMPUTER BELOW ---
