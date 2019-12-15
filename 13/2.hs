@@ -12,23 +12,22 @@ import qualified Data.Map as M
 
 data Tile = Empty | Wall | Block | Paddle | Ball | Score Int64 deriving (Show, Eq)
 
-main = print . run (M.insert (-1, 0) (Score 0) M.empty) . execute . save 0 2 . parse 10000 =<< getContents
+main = print . run M.empty . execute . save 0 2 . parse 5000 =<< getContents
 
 run grid effect =
     let toTile x y | x == -1 && y == 0 = Score
                    | otherwise = (!!) [Empty,Wall,Block,Paddle,Ball] . narrow
 
         output x y tile = M.insert (x,y) (toTile x y tile) grid
-        find f = fst .  head . filter (f . snd) $ M.toList grid
-        impact (x, y) (a, b) = (x - a)*(b - y)
+        find f = fst . fst .  head . filter (f . snd) $ M.toList grid
 
         paddle = find (==Paddle)
         ball = find (==Ball)
         score (Score x) = x
     in 
     case effect of
-         Input joystick -> run grid . joystick . signum $ impact ball paddle
-         End            -> score . fromJust $ M.lookup (-1,0) grid 
+         Input joystick -> run grid . joystick . signum $ ball - paddle
+         End            -> score . fromMaybe (Score 0) $ M.lookup (-1,0) grid 
          Output x (Output y (Output tile fx)) -> run (output x y tile) fx
 
 -- COMPUTER BELOW ---
