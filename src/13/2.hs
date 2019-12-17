@@ -1,10 +1,9 @@
 import Data.Intcode
-import Data.Maybe
-import qualified Data.Map as M
+import Data.Map hiding (filter)
 
-main = execStdinWith (save 0 2) $ flip run M.empty
+main = execStdinWith (save 0 2) $ run empty
 
-run End g = fromMaybe 0 $ M.lookup (-1,0) g
-run (Output x (Output y (Output tile fx))) g = run fx $ M.insert (x,y) tile g
-run (Input joystick) g = run (joystick . signum $ xOf 4 - xOf 3) g
-    where xOf t = fst . fst .  head . filter ((==) t . snd) $ M.toList g
+run g End = g ! (-1,0)
+run g (Output x (Output y (Output tile fx))) = run (insert (x,y) tile g) fx
+run g (Input joystick) = run g $ joystick . signum $ xOf 4 - xOf 3
+    where xOf t = fst . fst .  head . filter ((==) t . snd) $ toList g
