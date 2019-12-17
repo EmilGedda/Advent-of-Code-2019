@@ -4,7 +4,7 @@ version:             1.0.0.0
 synopsis:            Advent of Code 2019 Solutions
 description:         These are my cleaned-up solutions to the Advent of Code
                      programming game. <https://adventofcode.com>
-license:             BSD3
+license:             BSD-3-Clause
 license-file:        LICENSE
 author:              Emil Gedda
 maintainer:          emil.gedda@emilgedda.se
@@ -24,6 +24,17 @@ library
     split,
     parallel
 
+executable 13_1
+  main-is:             1.hs
+  build-depends:       advent2019, base, containers
+  hs-source-dirs:      src/13
+  default-language:    Haskell2010
+
+executable 13_2
+  main-is:             2.hs
+  build-depends:       advent2019, base, containers
+  hs-source-dirs:      src/13
+  default-language:    Haskell2010
 
 executable 15
   main-is:             main.hs
