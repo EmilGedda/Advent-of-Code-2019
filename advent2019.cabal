@@ -24,6 +24,18 @@ library
     split,
     parallel
 
+executable 9_1
+  main-is:             1.hs
+  build-depends:       advent2019, base, containers
+  hs-source-dirs:      src/09
+  default-language:    Haskell2010
+
+executable 9_2
+  main-is:             2.hs
+  build-depends:       advent2019, base, containers
+  hs-source-dirs:      src/09
+  default-language:    Haskell2010
+
 executable 13_1
   main-is:             1.hs
   build-depends:       advent2019, base, containers
