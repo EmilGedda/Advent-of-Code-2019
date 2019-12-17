@@ -1,13 +1,19 @@
-#!/usr/bin/env runhaskell
-import Prelude hiding (length, replicate)
-import Data.Int
-import Data.Sequence
+module Data.Intcode where
+
+import Control.Arrow
+import Control.Parallel.Strategies
 import Data.Bool
+import Data.Int
+import Data.List
 import Data.List.Split
+import Data.Maybe
+import Data.Sequence hiding (filter, reverse, chunksOf, Empty)
+import Prelude hiding (replicate)
 
 data Program = Program { pos :: Int64, base :: Int64,  memory :: Seq Int64 } deriving Show
 
 data Param = Position Int | Immediate Int64 | Relative Int
+
 data Op = Apply (Int64 -> Int64 -> Int64) Param Param Param
         | In Param
         | Out Param
@@ -20,20 +26,11 @@ data Effect = Input (Int64 -> Effect)
             | Output Int64 Effect
             | End
 
-main = print . head . input [2] . execute . parse 10000 =<< getContents
 
 parse :: Int -> String -> Program
-parse size code = Program 0 0 $ input >< replicate fill 0
+parse size code = Program 0 0 $ input >< Data.Sequence.replicate fill 0
         where input = fromList . map read $ splitOn "," code
-              fill = max 0 $ size - length input
-
-input ::  [Int64] -> Effect -> [Int64]
-input inputs effect =
-    case effect of
-         Input f | x:xs <- inputs -> input xs (f x)
-                 | otherwise      -> error "Not enough inputs"
-         Output x p               -> x:input inputs p
-         End                      -> []
+              fill = max 0 $ size - Data.Sequence.length input
 
 step f prog@Program{pos=i} = prog { pos = f i }
 save i v prog@Program{memory=mem} = v `seq` prog { memory = update i v mem }
@@ -62,7 +59,7 @@ execute prog@Program{base=relbase} =
         Out x          -> Output (deref x) $ cont 2 prog
         Jmp cond a b   -> bool (cont 3) (goto $ deref b) (cond $ deref a) prog
         Cmp cond a b c -> cont 4 $ store c (bool 0 1 $ cond (deref a) (deref b)) prog
-        Base rel       -> cont 2 . base $ deref rel 
+        Base rel       -> cont 2 . base $ deref rel
         Halt           -> End
 
 narrow ::Int64 -> Int

@@ -52,13 +52,13 @@ printHull hull =
         (minx, lenx) = coord fst
         (miny, leny) = coord snd
 
-        pixels = [(x,y) | x <- [minx..lenx], y <- [miny..leny]]
+        pixels = [(x,y) | y <- [miny..leny], x <- [minx..lenx]]
 
         draw pixel = char . fromMaybe 0 $ M.lookup pixel hull
         char 1 = '#'
         char 0 = ' '
 
-    in mapM_ (putStrLn . reverse . map draw) . transpose $ chunksOf (leny - miny + 1)  pixels
+    in mapM_ (putStrLn .  reverse . map draw) $ chunksOf (lenx - minx + 1)  pixels
 
 -- COMPUTER BELOW ---
 data Program = Program { pos :: Int64, base :: Int64,  memory :: Seq Int64 } deriving Show
