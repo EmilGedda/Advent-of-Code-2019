@@ -28,8 +28,9 @@ data Effect = Input (Int64 -> Effect)
 
 execStdin :: Show a => (Effect -> a) -> IO ()
 execStdin = execStdinWith id
-
 execStdinWith p f = print . f . execute . p . parse 5000 =<< getContents
+
+fromStdin = execute . parse 5000 <$> getContents
 
 parse :: Int -> String -> Program
 parse size code = Program 0 0 $ input >< Data.Sequence.replicate fill 0
