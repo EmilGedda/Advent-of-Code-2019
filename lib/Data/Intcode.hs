@@ -1,4 +1,4 @@
-module Data.Intcode where
+module Data.Intcode (Effect(..), execStdin, execStdinWith, execute, parse, save, widen, narrow) where
 
 import Control.Arrow
 import Control.Parallel.Strategies
@@ -29,8 +29,6 @@ data Effect = Input (Int64 -> Effect)
 execStdin :: Show a => (Effect -> a) -> IO ()
 execStdin = execStdinWith id
 execStdinWith p f = print . f . execute . p . parse 5000 =<< getContents
-
-fromStdin = execute . parse 5000 <$> getContents
 
 parse :: Int -> String -> Program
 parse size code = Program 0 0 $ input >< Data.Sequence.replicate fill 0
@@ -66,6 +64,9 @@ execute prog@Program{base=relbase} =
         Cmp cond a b c -> cont 4 $ store c (bool 0 1 $ cond (deref a) (deref b)) prog
         Base rel       -> cont 2 . base $ deref rel
         Halt           -> End
+
+widen ::Int -> Int64
+widen = fromIntegral
 
 narrow ::Int64 -> Int
 narrow = fromIntegral

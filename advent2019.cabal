@@ -66,8 +66,26 @@ executable 15
   hs-source-dirs:      src/15
   default-language:    Haskell2010
 
+executable 16_1
+  main-is:             1.hs
+  build-depends:       advent2019, base
+  hs-source-dirs:      src/16
+  default-language:    Haskell2010
+
+executable 16_2
+  main-is:             2.hs
+  build-depends:       advent2019, base, vector
+  hs-source-dirs:      src/16
+  default-language:    Haskell2010
+
 executable 17_1
   main-is:             1.hs
   build-depends:       advent2019, base, containers
+  hs-source-dirs:      src/17
+  default-language:    Haskell2010
+
+executable 17_2
+  main-is:             2.hs
+  build-depends:       advent2019, base, containers, split, lens
   hs-source-dirs:      src/17
   default-language:    Haskell2010
