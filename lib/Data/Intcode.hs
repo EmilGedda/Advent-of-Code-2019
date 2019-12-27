@@ -1,5 +1,5 @@
 module Data.Intcode (Effect(..), execStdin, execStdinWith,
-                     fromStdin, fromStdinWith,
+                     fromInput, fromOutput, fromStdin, fromStdinWith,
                      execute, parse, save, widen, narrow) where
 
 import Data.Bool
@@ -24,6 +24,9 @@ data Op = Apply (Int64 -> Int64 -> Int64) Param Param Param
 data Effect = Input (Int64 -> Effect)
             | Output Int64 Effect
             | End
+
+fromInput (Input f) = f
+fromOutput (Output out fx) = (out,fx)
 
 fromStdin = fromStdinWith id
 fromStdinWith p = execute . p . parse 5000 <$> getContents
