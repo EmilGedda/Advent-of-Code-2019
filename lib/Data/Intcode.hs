@@ -1,4 +1,4 @@
-module Data.Intcode (Effect(..), execStdin, execStdinWith, 
+module Data.Intcode (Effect(..), execStdin, execStdinWith,
                      fromStdin, fromStdinWith,
                      execute, parse, save, widen, narrow) where
 
@@ -24,7 +24,6 @@ data Op = Apply (Int64 -> Int64 -> Int64) Param Param Param
 data Effect = Input (Int64 -> Effect)
             | Output Int64 Effect
             | End
-
 
 fromStdin = fromStdinWith id
 fromStdinWith p = execute . p . parse 5000 <$> getContents
