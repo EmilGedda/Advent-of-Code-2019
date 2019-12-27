@@ -1,12 +1,11 @@
-module Data.Intcode (Effect(..), execStdin, execStdinWith, execute, parse, save, widen, narrow) where
+module Data.Intcode (Effect(..), execStdin, execStdinWith, 
+                     fromStdin, fromStdinWith,
+                     execute, parse, save, widen, narrow) where
 
-import Control.Arrow
-import Control.Parallel.Strategies
 import Data.Bool
 import Data.Int
 import Data.List
 import Data.List.Split
-import Data.Maybe
 import Data.Sequence hiding (filter, reverse, chunksOf, Empty)
 import Prelude hiding (replicate)
 
@@ -25,6 +24,10 @@ data Op = Apply (Int64 -> Int64 -> Int64) Param Param Param
 data Effect = Input (Int64 -> Effect)
             | Output Int64 Effect
             | End
+
+
+fromStdin = fromStdinWith id
+fromStdinWith p = execute . p . parse 5000 <$> getContents
 
 execStdin :: Show a => (Effect -> a) -> IO ()
 execStdin = execStdinWith id

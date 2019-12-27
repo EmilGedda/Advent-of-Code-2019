@@ -60,9 +60,9 @@ executable 13_2
   hs-source-dirs:      src/13
   default-language:    Haskell2010
 
-executable 15
-  main-is:             main.hs
-  build-depends:       advent2019, base, containers
+executable 15_1
+  main-is:             1.hs
+  build-depends:       advent2019, base, containers, split
   hs-source-dirs:      src/15
   default-language:    Haskell2010
 
