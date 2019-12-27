@@ -14,7 +14,7 @@ camera _ = []
 grid = foldr (\(y,line) g -> grid' g y line) M.empty . zip [0..]
     where grid' g y = foldr (\(x,c) -> M.insert (x,y) c) g . zip [0..]
 
-alignParam g (x,y) = do 
+alignParam g (x,y) = do
     coords <- mapM (`M.lookup` g) [(x+1,y),(x-1,y),(x,y+1),(x,y-1),(x,y)]
     guard $ all (=='#') coords
     return (x * y)
