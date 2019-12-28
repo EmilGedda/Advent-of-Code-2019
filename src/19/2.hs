@@ -1,5 +1,6 @@
 import Data.Intcode
 import Data.Maybe
+import Data.List
 import Control.Monad
 import Control.Arrow
 
@@ -11,8 +12,7 @@ pulls fx (x,y) = (==1) . fst . fromOutput $ fromInput (fromInput fx $ widen x) (
 
 next fx (x,y) =
     let y' = y + 1
-        x' = fst . head . dropWhile (not . snd)
-           $ map (second (pulls fx)) [(n, (n, y')) | n <- [x..]]
+        x' = fst . fromJust $ find (pulls fx) [(n, y') | n <- [x..]]
     in (x', y')
 
 square :: Effect -> (Int, Int) -> Maybe Int
