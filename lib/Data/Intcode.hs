@@ -1,6 +1,6 @@
 module Data.Intcode (Effect(..), execStdin, execStdinWith, load, runProg,
                      fromInput, fromOutput, fromStdin, fromEnd, runList,
-                     execute, parse, save, widen, narrow) where
+                     execute, parse, save, widen, narrow, Int64) where
 
 import Data.Bool
 import Data.Int
