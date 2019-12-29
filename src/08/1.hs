@@ -1,4 +1,3 @@
-#!/usr/bin/env runhaskell
 import Data.List
 import Data.Ord
 import Data.List.Split
