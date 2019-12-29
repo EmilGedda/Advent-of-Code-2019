@@ -1,5 +1,5 @@
 module Data.Intcode (Effect(..), execStdin, execStdinWith, load,
-                     fromInput, fromOutput, fromStdin, fromEnd,
+                     fromInput, fromOutput, fromStdin, fromEnd, runList,
                      execute, parse, save, widen, narrow) where
 
 import Data.Bool
@@ -24,6 +24,12 @@ data Op = Apply (Int64 -> Int64 -> Int64) Param Param Param
 data Effect = Input (Int64 -> Effect)
             | Output Int64 Effect
             | End Program
+
+
+runList [] (Input _) = error "Too few inputs"
+runList (x:xs) (Input f) = runList xs $ f x
+runList xs (Output out fx) = out:runList xs fx
+runList _ (End _) = []
 
 fromInput (Input f) = f
 fromOutput (Output out fx) = (out,fx)
