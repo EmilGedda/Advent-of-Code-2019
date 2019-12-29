@@ -1,6 +1,4 @@
-#!/usr/bin/env runhaskell
 import Data.Map hiding (map)
-import Data.List
 import Data.List.Split
 
 main = print . solve . map grid . init . map (splitOn ",") . splitOn "\n" =<< getContents
@@ -11,10 +9,10 @@ grid :: [String] -> Map (Int, Int) Int
 grid d = grid' d 1 (0,0) empty
 
 grid' [] _ _ set = set
-grid' ((dir:dist):xs) len (x,y) set = let (end, len') = last steps
-          in grid' xs (len' + 1) end . unionWith min set $ fromList steps
-    where steps = flip zip [len..] . map coords . zip [1..] $ replicate (read dist) (offset dir)
-          coords (d, (a, b)) = (d*a + x, d*b + y)
+grid' ((dir:dist):xs) len (x,y) set = grid' xs (len' + 1) end . unionWith min set $ fromList steps
+    where steps = flip zip [len..] . zipWith coords [1..] $ replicate (read dist) (offset dir)
+          coords d (a, b) = (d*a + x, d*b + y)
+          (end, len') = last steps
 
 offset 'L' = (-1, 0)
 offset 'U' = (0, -1)
