@@ -1,4 +1,3 @@
-#!/usr/bin/env runhaskell
 {-# LANGUAGE TemplateHaskell #-}
 import Data.Set hiding (drop, map)
 import Control.Lens
@@ -21,7 +20,7 @@ input = [ mkPlanet (-15)     1    4
 
 cycles f = cycles' empty . zip [0..] . map (map pair)
     where pair p = (f $ _pos p, f $ _vel p)
-          cycles' s [] = 0
+          cycles' _ [] = 0
           cycles' s ((n,y):ys) | member y s = n
                                | otherwise = cycles' (insert y s) ys
 

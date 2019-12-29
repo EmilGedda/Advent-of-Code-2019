@@ -1,4 +1,3 @@
-#!/usr/bin/env runhaskell
 {-# LANGUAGE TemplateHaskell #-}
 import Control.Lens
 import Data.List.Split

@@ -156,6 +156,18 @@ executable 11_2
   hs-source-dirs:      src/11
   default-language:    Haskell2010
 
+executable 12_1
+  main-is:             1.hs
+  build-depends:       base, lens, split
+  hs-source-dirs:      src/12
+  default-language:    Haskell2010
+
+executable 12_2
+  main-is:             2.hs
+  build-depends:       base, containers, lens, split
+  hs-source-dirs:      src/12
+  default-language:    Haskell2010
+
 executable 13_1
   main-is:             1.hs
   build-depends:       advent2019, base, containers
