@@ -33,7 +33,7 @@ paintHull rob effect =
     in case effect of
          Input whatColor             -> paintHull rob . whatColor $ currentColor rob
          Output color (Output dir p) -> flip paintHull p . move dir $ paint color rob
-         End                         -> panels rob
+         End _                       -> panels rob
 
 
 printHull :: M.Map Position Int64 -> String

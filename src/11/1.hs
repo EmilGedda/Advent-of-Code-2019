@@ -29,4 +29,4 @@ paintHull rob effect =
     in case effect of
          Input whatColor             -> paintHull rob $ whatColor currentColor
          Output color (Output dir p) -> flip paintHull p . move dir $ paint color rob
-         End                         -> M.size $ panels rob
+         End _                       -> M.size $ panels rob

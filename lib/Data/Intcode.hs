@@ -1,4 +1,4 @@
-module Data.Intcode (Effect(..), execStdin, execStdinWith, load, toFn,
+module Data.Intcode (Effect(..), execStdin, execStdinWith, load, runProg,
                      fromInput, fromOutput, fromStdin, fromEnd, runList,
                      execute, parse, save, widen, narrow) where
 
@@ -43,8 +43,8 @@ execStdin :: Show a => (Effect -> a) -> IO ()
 execStdin = execStdinWith id
 execStdinWith p f = print . f . execute . p =<< fromStdin
 
-toFn :: Program -> [Int64] -> [Int64]
-toFn = flip runList . execute
+runProg :: Program -> [Int64] -> [Int64]
+runProg = flip runList . execute
 
 parse :: Int -> String -> Program
 parse size code = Program 0 0 $ input >< Data.Sequence.replicate fill 0

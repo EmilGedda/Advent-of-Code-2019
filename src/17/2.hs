@@ -4,7 +4,6 @@ import Data.Char
 import Data.Function
 import Data.Intcode
 import Data.List
-import Data.List.Split
 import Data.Maybe
 import Data.Tuple
 import qualified Data.Map.Strict as M
@@ -58,12 +57,9 @@ move g robot@Robot{dir=direction, pos=position, vis = visited, walk = ws} =
 
 main = do
     program <- parse 5000 <$> getContents
-    let
-        view =  grid . lines . camera $ execute program
-        vacuum = save 0 2 program
-        inputs = compress [] Nothing Nothing Nothing $ solve view
-
-    print . last . run inputs . execute $ vacuum
+    let view =  grid . lines . camera $ execute program
+        inputs = map (widen . ord) . compress [] Nothing Nothing Nothing $ solve view
+    print . last $ runProg (save 0 2 program) inputs
 
 compress acc a b c [] =
     unlines [ intercalate "," (reverse acc)
@@ -106,10 +102,6 @@ mkRobot g =
 
 camera (Output c eff) = chr (narrow c):camera eff
 camera _ = []
-
-run (x:xs) (Input f) = run xs . f . widen $ ord x
-run inputs (Output o eff) = o:run inputs eff
-run _ End = []
 
 grid = foldr (\(y,line) g -> grid' g y line) M.empty . zip [0..]
     where grid' g y = foldr (\(x,c) -> M.insert (x,y) c) g . zip [0..]
