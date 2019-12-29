@@ -1,15 +1,3 @@
-#!/usr/bin/env runhaskell
-import Data.List.Split
-import Data.Vector as V
+import Data.Intcode
 
-main = print . run 0 . program . V.map read . fromList . splitOn "," =<< getContents
-
-program = (// [(1, 12), (2, 2)])
-
-run i v
-    | v ! i == 99 = V.head v
-    | otherwise = let instruction = toList $ slice i 4 v
-                  in run (i + 4) $ v // (execute instruction v)
-    where execute (opcode:a:b:dest:[]) v = [(dest, op opcode (v ! a) (v ! b))]
-
-op = (!) $ fromList [undefined, (+), (*)]
+main = execStdinWith (save 1 12 . save 2 2) (flip load 0 . fromEnd)

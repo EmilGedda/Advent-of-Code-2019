@@ -1,5 +1,5 @@
-module Data.Intcode (Effect(..), execStdin, execStdinWith,
-                     fromInput, fromOutput, fromStdin, fromStdinWith,
+module Data.Intcode (Effect(..), execStdin, execStdinWith, load,
+                     fromInput, fromOutput, fromStdin, fromEnd,
                      execute, parse, save, widen, narrow) where
 
 import Data.Bool
@@ -23,17 +23,17 @@ data Op = Apply (Int64 -> Int64 -> Int64) Param Param Param
 
 data Effect = Input (Int64 -> Effect)
             | Output Int64 Effect
-            | End
+            | End Program
 
 fromInput (Input f) = f
 fromOutput (Output out fx) = (out,fx)
+fromEnd (End p) = p
 
-fromStdin = fromStdinWith id
-fromStdinWith p = execute . p . parse 5000 <$> getContents
+fromStdin = parse 5000 <$> getContents
 
 execStdin :: Show a => (Effect -> a) -> IO ()
 execStdin = execStdinWith id
-execStdinWith p f = print . f . execute . p . parse 5000 =<< getContents
+execStdinWith p f = print . f . execute . p =<< fromStdin
 
 parse :: Int -> String -> Program
 parse size code = Program 0 0 $ input >< Data.Sequence.replicate fill 0
@@ -43,15 +43,18 @@ parse size code = Program 0 0 $ input >< Data.Sequence.replicate fill 0
 step f prog@Program{pos=i} = prog { pos = f i }
 save i v prog@Program{memory=mem} = v `seq` prog { memory = update i v mem }
 
+load :: Program -> Int -> Int64
+load p i = memory p `index` i
+
 execute :: Program -> Effect
 execute prog@Program{base=relbase} =
-    let at i   = memory prog `index` i
+    let
         cont n = execute . step (+n)
         goto n = execute . step (const n)
 
         deref (Immediate i) = i
-        deref (Position  i) = at i
-        deref (Relative  i) = at $ i + narrow relbase
+        deref (Position  i) = load prog i
+        deref (Relative  i) = load prog $ i + narrow relbase
         apply f a b = f (deref a) (deref b)
 
         store (Immediate _) = error "Invalid to store to Immediate"
@@ -68,7 +71,7 @@ execute prog@Program{base=relbase} =
         Jmp cond a b   -> bool (cont 3) (goto $ deref b) (cond $ deref a) prog
         Cmp cond a b c -> cont 4 $ store c (bool 0 1 $ cond (deref a) (deref b)) prog
         Base rel       -> cont 2 . base $ deref rel
-        Halt           -> End
+        Halt           -> End prog
 
 widen ::Int -> Int64
 widen = fromIntegral
