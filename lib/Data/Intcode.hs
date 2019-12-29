@@ -1,4 +1,4 @@
-module Data.Intcode (Effect(..), execStdin, execStdinWith, load,
+module Data.Intcode (Effect(..), execStdin, execStdinWith, load, toFn,
                      fromInput, fromOutput, fromStdin, fromEnd, runList,
                      execute, parse, save, widen, narrow) where
 
@@ -26,10 +26,12 @@ data Effect = Input (Int64 -> Effect)
             | End Program
 
 
-runList [] (Input _) = error "Too few inputs"
-runList (x:xs) (Input f) = runList xs $ f x
-runList xs (Output out fx) = out:runList xs fx
-runList _ (End _) = []
+runList inputs effect =
+    case effect of
+        Input f | x:xs <- inputs -> runList xs (f x)
+                | otherwise      -> error "Too few inputs"
+        Output out fx            -> out : runList inputs fx
+        End _                    -> []
 
 fromInput (Input f) = f
 fromOutput (Output out fx) = (out,fx)
@@ -40,6 +42,9 @@ fromStdin = parse 5000 <$> getContents
 execStdin :: Show a => (Effect -> a) -> IO ()
 execStdin = execStdinWith id
 execStdinWith p f = print . f . execute . p =<< fromStdin
+
+toFn :: Program -> [Int64] -> [Int64]
+toFn = flip runList . execute
 
 parse :: Int -> String -> Program
 parse size code = Program 0 0 $ input >< Data.Sequence.replicate fill 0

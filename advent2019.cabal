@@ -96,6 +96,18 @@ executable 6_2
   hs-source-dirs:      src/06
   default-language:    Haskell2010
 
+executable 7_1
+  main-is:             1.hs
+  build-depends:       base, advent2019
+  hs-source-dirs:      src/07
+  default-language:    Haskell2010
+
+executable 7_2
+  main-is:             2.hs
+  build-depends:       base, advent2019
+  hs-source-dirs:      src/07
+  default-language:    Haskell2010
+
 executable 9_1
   main-is:             1.hs
   build-depends:       advent2019, base, containers
