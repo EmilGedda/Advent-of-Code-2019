@@ -34,13 +34,11 @@ toStr (len, dir) = dir:"," ++ show len
 toCode = intercalate "," . map toStr
 
 prioritize direction p =
-    let
-        next = step !! direction
+    let next = step !! direction
         forward = add p next
-        back    = sub p next
         left    = sub p (swap next)
         right   = add p (swap next)
-    in [forward, left, right, back]
+    in [forward, left, right]
 
 move g robot@Robot{dir=direction, pos=position, vis = visited, walk = ws} =
     let
@@ -55,21 +53,27 @@ move g robot@Robot{dir=direction, pos=position, vis = visited, walk = ws} =
     return $ robot { pos = newpos, dir = newdir, walk = (newpos,newdir):ws
                    , vis = S.insert newpos visited }
 
-main = do
-    program <- parse 5000 <$> getContents
-    let view =  grid . lines . camera $ execute program
-        inputs = map (widen . ord) . compress [] Nothing Nothing Nothing $ solve view
-    print . last $ runProg (save 0 2 program) inputs
+main =
+    let inputs = map (widen . ord)
+               . compress [] Nothing Nothing Nothing
+               . solve
+               . grid
+               . lines
+               . map (chr . narrow)
+               . runList []
+               . execute
+
+    in print . last . (runProg . save 0 2 <*> inputs) =<< fromStdin
 
 compress acc a b c [] =
     unlines [ intercalate "," (reverse acc)
-        , maybe "" toCode a
-        , maybe "" toCode b
-        , maybe "" toCode c, "n"]
+            , maybe "" toCode a
+            , maybe "" toCode b
+            , maybe "" toCode c, "n"]
 
 compress acc a b c xs =
-  do (ys,zs) <- splits xs
-     guard (short ys)
+  do (ys,zs) <- tail $ liftM2 zip inits tails xs
+     guard $ length (toCode ys) <= 20
      let branch
             | Just ys == a = compress ("A":acc) a b c zs
             | Just ys == b = compress ("B":acc) a b c zs
@@ -78,13 +82,8 @@ compress acc a b c xs =
             | isNothing b  = compress ("B":acc) a (Just ys) c zs
             | isNothing c  = compress ("C":acc) a b (Just ys) zs
             | otherwise    = []
+
      branch
-
-short :: [(Int,Char)] -> Bool
-short xs = length (toCode xs) <= 20
-
-splits :: [a] -> [([a],[a])]
-splits = tail . liftM2 zip inits tails
 
 solve g =
     let
@@ -100,9 +99,7 @@ mkRobot g =
                        . filter (isRobot . snd) $ M.toList g
     in Robot d pos S.empty [start]
 
-camera (Output c eff) = chr (narrow c):camera eff
-camera _ = []
-
-grid = foldr (\(y,line) g -> grid' g y line) M.empty . zip [0..]
-    where grid' g y = foldr (\(x,c) -> M.insert (x,y) c) g . zip [0..]
+grid = foldr column M.empty . zip [0..]
+    where column (y,line) g = foldr (row y) g $ zip [0..] line
+          row y (x,c) = M.insert (x,y) c
 
