@@ -1,4 +1,3 @@
-#!/usr/bin/env runhaskell
 import qualified Data.Map.Strict as M
 import Control.Arrow
 
